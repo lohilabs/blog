@@ -104,7 +104,7 @@ Even auto-layout is a great example of moving towards a non-linear (and reactive
 
 Recently [Jon Sterling](https://twitter.com/jonsterling) mentioned the term "Compositional Event System" in a twittergument about the term used to define RAC and similar styles of programming. I think it fits really well. Much like the shifts in the multimedia tools above, what we really want to do is remove (for the most part) the need to deal with the timeline of when events (inputs) happened, and therefor the need to manually keep track of them with state. We want to make the computer do that for us.
 
-We don't care WHEN events (inputs) happen. We want to get away from that crazy timeline we were managing above, to a system where we just describe up front what happens to our UI (output) whenever a certain combination of inputs occur. We want to define the relationship between events (inputs) and their subsequent outputs, and then let the computer **react** appropriately whenever those events occur. Yes state still exists somewhere in this event system, but it's abstracted away from our day to day work (mostly).
+We don't care WHEN events (inputs) happen. We want to get away from that crazy timeline we were managing above, to a system where we just describe up front what happens to our UI (output) whenever a certain combination of inputs occur. We want to define the relationship between events (inputs), define their subsequent outputs, and then let the computer **react** appropriately whenever those events occur. Yes state still exists somewhere in this event system, but it's abstracted away from our day to day work (mostly).
 
 When you think about it, this concept is actually very simple, and not entirely foreign. Inputs and outputs:
 
