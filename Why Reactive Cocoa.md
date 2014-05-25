@@ -36,11 +36,11 @@ The problem is that we rarely (read: never) are updating our output based on *ju
 >"To put it another way, the output at any one time is the result of combining all inputs. The output is a function of all inputs up to that time."
 
 ## Paper Tape Computing (Linear Programming)
-The issue here is one of **time**. Time is a pain in the keister. Basically, we program in linear fashion, never wandering all that far from the way things were done on [paper tape computers](https://www.youtube.com/watch?v=uqyVgrplrno). We have an understanding that there is a run loop, and that our code is going to be placed on a time line and executed in order (ignoring multiple processes for the sake of argument.) Even our awesome block callbacks and delegates are just giving us another snippet of time on the time line where we can execute code, as shown in this beautiful (and super simplified) diagram.
+The issue here is one of **time**, or more accurately, the timeline of execution. Basically, we program in linear fashion, never wandering all that far from the way things were done on [paper tape computers](https://www.youtube.com/watch?v=uqyVgrplrno). We have an understanding that there is a run loop, and that our code is going to be placed on a time line and executed in order (ignoring multiple processes for the sake of argument.) Even our awesome block callbacks and delegates are just giving us another snippet of time on the time line where we can execute code. In fact all our code is driven by inputs (events) just giving us another chance to insert some paper tape, as shown in this beautiful (and super simplified) diagram.
 
 ![Taking turns on the paper tape computer][code-timeline]
 
-If all these events (inputs) would just occur at the exact same time our lives would be much easier. The problem is that events are occuring *as time is passing*. When any one of those events occurs, we may need to generate output. To do that, we need to combine the new information from this event with all the information from past relevant, but divorced events that might affect our new output. (In this instance we're updating the screen.)
+The period of time in which the data from these events is available to us is limited to a small spot on our linear execution timeline (scope). Even if all these events occured at the exact same millisecond, the CPU would still have to handle one at a time. Our code is stuck in single file. To do that, we need to combine the new information from this event with all the information from past relevant, but divorced events that might affect our new output. (In this instance we're updating the screen.)
 
 ![Events over time][events]
 
@@ -109,7 +109,7 @@ We don't care WHEN events (inputs) happen. We want to get away from that crazy t
 When you think about it, this concept is actually very simple, and not entirely foreign. Inputs and outputs:
 
 ![A home-made 4-bit computer logic board with lights][logic-board]
-[Original site](http://www.waitingforfriday.com/index.php/4-Bit_Computer)
+[Source](http://www.waitingforfriday.com/index.php/4-Bit_Computer)
 
 ##ReactiveCocoa
 
