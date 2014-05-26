@@ -7,7 +7,7 @@ The first step is acknowledging you have a problem. I didn't really know that I 
 
 I had very little understanding of what the benefits might be when I began. What I hope to do here is provide some insight as to why (most of) our default style of programming makes things unnecessarily hard on us, and how RAC's Reactive style can improve things considerably.
 
-To start you should probably go read the article ["Inputs and Outputs"](http://blog.maybeapps.com/post/42894317939/input-and-output) by [Josh Aber](https://twitter.com/joshaber). It's an **extremely** well written article that I can only hope to supplement with a slightly different explanation. (Apologies for regurgitating a bit of what he's covered there.)
+To start you should probably go read the article ["Inputs and Outputs"](http://blog.maybeapps.com/post/42894317939/input-and-output) by [Josh Aber](https://twitter.com/joshaber). It's an **extremely** well written article that I can only hope to supplement with a slightly different explanation. (I'll be rehashing a bit of what he's covered there.)
 
 ##Inputs and Outputs
 So what does Josh mean when he says it's all Inputs and Outputs? The entirety of our job, the meat and potatoes of what we are doing when we build an app, is waiting for events to happen that provide some sort of information (inputs), and then acting on some combination of those inputs and generating some kind of output. Inputs come in all kinds. They provide us with varying levels and types of information:
@@ -73,7 +73,7 @@ So what is state? Are we just talking about enums and state machines like `TCQue
 @end
 ```
 
-That should have made you cringe. I'm SURE you've seen (and written) similar code. If not you are either lying, or a WAY better programmer than I am. See UI's are often very complex in code even when they appear simple to the user. In fact, the very reason a user may LOVE your app is the amount of power it delivers in an extremely simple interface.
+That should have made you cringe. I'm SURE you've seen (and written) similar code. If not you are a WAY better programmer than I am. UI's are often very complex in code even when they appear simple to the user. In fact, the very reason a user may LOVE your app is the amount of power it delivers in an extremely simple interface.
 > Value is created by swallowing complexity for the user.  *- CEO of my first startup*
 
 The problem here is that every time you add another state, you are increasing the possible number of combinations in an **EXPONENTIAL** manner. And that's assuming your states are just BOOLs. I had an "aha!" moment when I saw a slide in a talk by [Justin Spahr-Summers](http://twitter.comjspahrsummers).
@@ -88,7 +88,7 @@ To make matters worse, this type of code will often produce UI only bugs that ar
 
 How can we possibly keep this all straight in our heads? We are expending an awful lot of brain power dealing with the consequences of this linear code execution thing, this modern version of the paper tape computer. Despite the power of computers today, we are still doing a heck of a lot of work on their behalf. We're programming to the way the computer hardware works; to the way that the run loop is creating a timeline and the cpu is processing bits in a single file. We are architecting our code around low level implementation details of computing. What if we were to harness the power of the computer, let it do more of the work, and allow ourselves to think and design our apps in a more sane manner?
 
-What if we abstract away the whole pesky notion of time and let the computer track state over time for us? Seems like something the computer would be good at.
+What if we abstract away the whole pesky notion of linear code execution and let the computer track state over time for us? Seems like something the computer would be good at.
 
 ## Non-Linear Programming
 
@@ -100,13 +100,13 @@ The same thing occured with video editing and compositing. Initially it was done
 
 This change to non-linear tools allow for amazing levels of flexibility and creativity, giving the artists several orders of magnitude more power to realize their visions.
 
-Even auto-layout is a great example of moving towards a non-linear (and reactive) approach. Instead of waiting for certain events to occur, then checking the status of a bunch of views and manually updating frames, you just **describe** what the relationships between all the views are ahead of time and let the computer do the work.
+Even auto-layout is a great example of moving towards a non-linear (and reactive) approach. Instead of waiting for certain events to occur, then checking the status of a bunch of views and imperatively updating frames, you just **describe** what the relationships between all the views are ahead of time and let the computer do the work.
 
 ##Compositional Event System
 
-Recently [Jon Sterling](https://twitter.com/jonsterling) mentioned the term "Compositional Event System" in a twittergument about the term used to define RAC and similar styles of programming. I think it fits really well. Much like the shifts in the multimedia tools above, what we really want to do is remove (for the most part) the need to deal with the timeline of when events (inputs) happened, and therefor the need to manually keep track of them with state. We want to make the computer do that for us.
+Recently [Jon Sterling](https://twitter.com/jonsterling) mentioned the term "Compositional Event System" in a twittergument about the term used to define RAC and similar styles of programming. I think it fits really well. Much like the shifts in the multimedia tools above, what we really want to do is remove (for the most part) the need to account for the timeline of when events (inputs) happen, and therefor the need to manually keep track of them with state. We want to make the computer do that for us.
 
-We don't care WHEN events (inputs) happen. We want to get away from that crazy timeline we were managing above, to a system where we just describe up front what happens to our UI (output) whenever a certain combination of inputs occur. We want to define the relationship between events (inputs), define their subsequent outputs, and then let the computer **react** appropriately whenever those events occur. Yes state still exists somewhere in this event system, but it's abstracted away from our day to day work (mostly).
+We want to define the relationship between events (inputs), define their subsequent outputs, and then let the computer **react** appropriately whenever those events occur. State still exists somewhere in this event system, but it's largely abstracted away from our day to day work. That's a big win.
 
 When you think about it, this concept is actually very simple, and not entirely foreign. Inputs and outputs:
 
