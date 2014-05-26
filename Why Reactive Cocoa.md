@@ -36,17 +36,17 @@ The problem is that we rarely (read: never) are updating our output based on *ju
 >"To put it another way, the output at any one time is the result of combining all inputs. The output is a function of all inputs up to that time."
 
 ## Paper Tape Computing (Linear Programming)
-The issue here is one of **time**, or more accurately, the timeline of execution. Basically, we program in linear fashion, never wandering all that far from the way things were done on [paper tape computers](https://www.youtube.com/watch?v=uqyVgrplrno). We have an understanding that there is a run loop, and that our code is going to be placed on a time line and executed in order (ignoring multiple processes for the sake of argument.) Even our awesome block callbacks and delegates are just giving us another snippet of time on the time line where we can execute code. In fact all our code is driven by inputs (events) just giving us another chance to insert some paper tape, as shown in this beautiful (and super simplified) diagram.
+The issue here is one of **time**, or more accurately, the time line of execution. Basically, we program in linear fashion, never wandering all that far from the way things were done on [paper tape computers](https://www.youtube.com/watch?v=uqyVgrplrno). We have an understanding that there is a run loop, and that our code is going to be placed on a time line and executed in order (ignoring multiple processes for the sake of argument.) Even our awesome block callbacks and delegates are just giving us another snippet of time on the time line where we can execute code. In fact all our code is driven by inputs (events) just giving us another chance to insert some paper tape, as shown in this beautiful (and super simplified) diagram.
 
 ![Taking turns on the paper tape computer][code-timeline]
 
-The period of time in which the data from these events is available to us is limited to a small spot on our linear execution timeline (scope). Even if all these events occured at the exact same millisecond, the CPU would still have to handle one at a time. Our code is stuck executing in single file. 
+The period of time in which the data from these events is available to us is limited to a small spot on our linear execution timeline (scope). Even if all these events occured at the exact same millisecond, the CPU would still have to handle one at a time. Our code is stuck executing in single file, with no knowledge of what happened before it.
 
-Whenever one of these events happens, we likely need to generate output. To do that, we need to combine the new information from this event with all the information from past relevant, but divorced events that might affect our new output. (In this instance we're updating the screen.)
+Whenever one of these events happens, we likely need to generate output. To do that, we need to combine the new information from this event with all the information from previous events relevant to this particular output.
 
 ![Events over time][events]
 
-But how do we do that? There's no elegant mechanism provided for accessing past events, or combining the results of a bunch of events. We are left to our own devices to come up with a solution. What's the solution we all are immediately trained to jump to?
+But how do we do that? The information from those events is now out of scope. There's no elegant mechanism provided for accessing past events, or combining the results of a combination of events. We are left to our own devices to come up with a solution.
 
 ##STATE
 State is what makes our job as programmers VERY hard sometimes. To be honest, I didn't recognize this at all. That is to say, I knew when I had lots of different events and variables affecting my UI that it became really hard to manage; but I didn't recognize it in a philisophical, definable way. It's so engrained in me that I just thought it was part of the deal with programming, and that maybe I wasn't the best programmer for constantly struggling with it. 
