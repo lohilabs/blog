@@ -40,7 +40,9 @@ The issue here is one of **time**, or more accurately, the timeline of execution
 
 ![Taking turns on the paper tape computer][code-timeline]
 
-The period of time in which the data from these events is available to us is limited to a small spot on our linear execution timeline (scope). Even if all these events occured at the exact same millisecond, the CPU would still have to handle one at a time. Our code is stuck in single file. To do that, we need to combine the new information from this event with all the information from past relevant, but divorced events that might affect our new output. (In this instance we're updating the screen.)
+The period of time in which the data from these events is available to us is limited to a small spot on our linear execution timeline (scope). Even if all these events occured at the exact same millisecond, the CPU would still have to handle one at a time. Our code is stuck executing in single file. 
+
+Whenever one of these events happens, we likely need to generate output. To do that, we need to combine the new information from this event with all the information from past relevant, but divorced events that might affect our new output. (In this instance we're updating the screen.)
 
 ![Events over time][events]
 
