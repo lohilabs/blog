@@ -33,11 +33,11 @@ The problem is that we rarely (read: never) are updating our output based on *ju
 I will add one huge point. We *often* don't really care what orders these inputs came in from an application design perspective, but from an implementation perspective it's something we are constantly dealing with.
 
 ## Paper Tape Computing (Linear Programming)
-The issue here is one of **time**, or more accurately, the time line of execution. Basically, we program in linear fashion, never wandering all that far from the way things were done on [paper tape computers](https://www.youtube.com/watch?v=uqyVgrplrno). We have an understanding that there is a run loop, and that our code is going to be placed on a time line and executed in order (ignoring multiple processes for the sake of argument.) Even our awesome block callbacks and delegates are just giving us another snippet of time on the time line where we can execute code. In fact all our code is driven by inputs (events) just giving us another chance to insert some paper tape, as shown in this beautiful (and super simplified) diagram.
+The issue here is one of **time**, or more accurately, the time line of execution. Basically, we program in linear fashion, never wandering all that far from the way things were done on [paper tape computers](https://www.youtube.com/watch?v=uqyVgrplrno). We have an understanding that there is a run loop, and that our code is going to be placed on a time line and executed in order (ignoring multiple processes for the sake of argument.) Even our awesome block callbacks and delegates are just giving us another snippet of time on the time line where we can execute code. In fact all our code is driven by inputs (events) just giving us another chance to insert some paper tape, as shown in this beautiful (and super simplified) diagram. [^1]
 
 ![Taking turns on the paper tape computer][code-timeline]
 
-Our sophisticated, "asynchronous" callbacks and other events are still occuring in a linear fashion. The period of time in which the data from these events is available to us is limited to a small spot on our linear execution timeline (scope). Even if all these events occured at the exact same millisecond, the CPU would still have to handle one at a time. Our code is stuck executing in single file, with no knowledge of what happened before it.
+Our sophisticated, "asynchronous" callbacks and other events are still occurring in a linear fashion. The period of time in which the data from these events is available to us is limited to a small spot on our linear execution timeline (scope). Even if all these events occurred at the exact same millisecond, the CPU would still have to handle one at a time. Our code is stuck executing in single file, with no knowledge of what happened before it.
 
 Whenever one of these events happens, we likely need to generate output. To do that, we need to combine the new information from this event with all the information from previous events relevant to this particular output.
 
@@ -50,7 +50,7 @@ But how do we do that? The information from those events is now out of scope. Th
 Basically anytime we get the opportunity to run a bit more code in this linear system, we are doing so with the memory of a goldfish. Each time we have no idea what's going on and have to go check a bunch of things to build enough context to correctly generate the output we need. The system is "dumb" and doesn't know what information we might need, so it can't track it for us. We are left to our own devices to come up with a solution.
 
 ##STATE
-State is what makes our job as programmers VERY hard sometimes. To be honest, I didn't recognize this at all. That is to say, I knew when I had lots of different events and variables affecting my UI that it became really hard to manage; but I didn't recognize it in a philisophical, definable way. It's so engrained in me that I just thought it was part of the deal with programming, and that maybe I wasn't the best programmer for constantly struggling with it. 
+State is what makes our job as programmers VERY hard sometimes. To be honest, I didn't recognize this at all. That is to say, I knew when I had lots of different events and variables affecting my UI that it became really hard to manage; but I didn't recognize it in a philosophical, definable way. It's so ingrained in me that I just thought it was part of the deal with programming, and that maybe I wasn't the best programmer for constantly struggling with it. 
 
 This is not the case. **Everyone sucks at managing state.** It is the source of an endless amount of bugs and blank stares. "I understand WHY it crashed. I just don't understand how the user could have possibly gotten it in that state." &#8592; Programmer adds another state check.
 
@@ -93,11 +93,11 @@ What if we abstract away the whole pesky notion of linear code execution, explai
 
 ## Non-Linear Programming
 
-I'm not a classically trained, CS Degree wielding programmer. I did a lot of multimedia before ending up programming for my day job. It has it's plusses and minuses, but it's allowed me some outside perspective on things. For instance I've seen this whole non-linear concept play out a couple times. 
+I'm not a classically trained, CS Degree wielding programmer. I did a lot of multimedia before ending up programming for my day job. It has it's pluses and minuses, but it's allowed me some outside perspective on things. For instance I've seen this whole non-linear concept play out a couple times. 
 
 Photoshop didn't used to have non destructive editing. You would make your edits (inputs) over time and your only recourse for change was your undo history. When computers became powerful enough, the timeline intrinsic to the linear editing process was replaced by a lot of non-destructive layers and filters. You didn't have to worry about the order you did things (as much). The computer handled combining all the inputs (filters, masks, etc) for you as long as you leveraged them properly.
 
-The same thing occured with video editing and compositing. Initially it was done with destructive edits, where you were literally altering the original video file and could only go back so far as undo allowed (or to your last backup). Then the whole process went non-linear and we were given non-destructive filters and the ability to adjust your edits an infinite amount of times.
+The same thing occurred with video editing and compositing. Initially it was done with destructive edits, where you were literally altering the original video file and could only go back so far as undo allowed (or to your last backup). Then the whole process went non-linear and we were given non-destructive filters and the ability to adjust your edits an infinite amount of times.
 
 This change to non-linear tools allow for amazing levels of flexibility and creativity, giving the artists several orders of magnitude more power to realize their visions.
 
@@ -126,3 +126,26 @@ So how does ReactiveCocoa abstract away the timeline for us and step into the wo
 [state]: images/state.png "Alright. Shut it down. We blew it."
 [state-change]: images/state-change.png "Take Illustrator away from this guy."
 [logic-board]: images/logic-board.jpg "Man that seems satisfying."
+
+[^1]: 
+    Technically in nested inputs such as the two API calls here, the child would have access to the parent event data via a closure. This is a little helpful for outputs that have only a dependency on their ancestors, but not a very robust solution (Ugh).
+
+        [TCAPI doSomeAPIWOrk onComplete:^(NSArray *objects, NSError *error) {
+            if(!error) {
+                [TCAPI doSomeAPIWOrk onComplete:^(NSArray *objects, NSError *error) {
+                    if(!error) {
+                        [TCAPI doSomeAPIWOrk onComplete:^(NSArray *objects, NSError *error) {
+                            if(!error) {
+                                checkABunchOfThingsAndUpdateTheScreen();
+                            } else {
+                                handleError(error);
+                            }
+                        }];
+                    } else {
+                        handleError(error);
+                    }
+                }];
+            } else {
+                handleError(error);
+            }
+        }];
