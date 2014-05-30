@@ -1,11 +1,6 @@
 #Why Reactive (Cocoa)?
 
-The first step is acknowledging you have a problem. I didn't really know that I had a problem, or rather, that I was programming in a way that lent itself to headaches. I decided to try ReactiveCocoa (RAC) because:
-
-1. I had heard a little bit about the Reactive style of programming on the server side from my colleague (though not really getting the gist of it) 
-2. I love learning new hip things; and RAC came with buzzwords! 
-
-I had very little understanding of what the benefits might be when I began. What I hope to do here is provide some insight as to why (most of) our default style of programming makes things unnecessarily hard on us, and how RAC's Reactive style can improve things considerably.
+I had very little understanding of what the benefits might be when I began to learn ReactiveCocoa (RAC); but I love learning new hip things and RAC came with buzzwords! What I hope to do here is provide some insight on what I've learned, and why you should at least investigate the Reactive style of programming. (There has been some fuss recently over the exact terms used to describe the "style" of programming found in ReactiveCocoa, but I still think Reactive is a pretty good term myself so I'm not going to shy away from it yet.)
 
 To start you should probably go read the article ["Inputs and Outputs"](http://blog.maybeapps.com/post/42894317939/input-and-output) by [Josh Aber](https://twitter.com/joshaber). It's an **extremely** well written article that I can only hope to supplement with a slightly different explanation. (I'll be rehashing a bit of what he's covered there.)
 
@@ -35,18 +30,24 @@ Outputs can be anything, but a few typical examples include updating a value on 
 The problem is that we rarely (read: never) are updating our output based on *just one input/event*. I can't put it any better than the way Josh stated it: 
 >"To put it another way, the output at any one time is the result of combining all inputs. The output is a function of all inputs up to that time."
 
+I will add one huge point. We *often* don't really care what orders these inputs came in from an application design perspective, but from an implementation perspective it's something we are constantly dealing with.
+
 ## Paper Tape Computing (Linear Programming)
 The issue here is one of **time**, or more accurately, the time line of execution. Basically, we program in linear fashion, never wandering all that far from the way things were done on [paper tape computers](https://www.youtube.com/watch?v=uqyVgrplrno). We have an understanding that there is a run loop, and that our code is going to be placed on a time line and executed in order (ignoring multiple processes for the sake of argument.) Even our awesome block callbacks and delegates are just giving us another snippet of time on the time line where we can execute code. In fact all our code is driven by inputs (events) just giving us another chance to insert some paper tape, as shown in this beautiful (and super simplified) diagram.
 
 ![Taking turns on the paper tape computer][code-timeline]
 
-The period of time in which the data from these events is available to us is limited to a small spot on our linear execution timeline (scope). Even if all these events occured at the exact same millisecond, the CPU would still have to handle one at a time. Our code is stuck executing in single file, with no knowledge of what happened before it.
+Our sophisticated, "asynchronous" callbacks and other events are still occuring in a linear fashion. The period of time in which the data from these events is available to us is limited to a small spot on our linear execution timeline (scope). Even if all these events occured at the exact same millisecond, the CPU would still have to handle one at a time. Our code is stuck executing in single file, with no knowledge of what happened before it.
 
 Whenever one of these events happens, we likely need to generate output. To do that, we need to combine the new information from this event with all the information from previous events relevant to this particular output.
 
 ![Events over time][events]
 
-But how do we do that? The information from those events is now out of scope. There's no elegant mechanism provided for accessing past events, or combining the results of a combination of events. We are left to our own devices to come up with a solution.
+But how do we do that? The information from those events is now out of scope. There's no elegant mechanism provided for accessing past events, or combining the results of a combination of events. Since these inputs are essentially isolated from each other in this linear style of programming, we have to imperatively (directly) go and check the status of any dynamic information that other inputs could have changed beforehand. That is to say any time there is an event (input), and we're given a chance to run some more paper tape, we do a lot of this type of thing in code: 
+
+>"Ok lets check what we've got here. User tapped a button eh? Well we're going to want to show the menu then, but a couple things first. Is this user logged in? Good they are. And has the data for this menu loaded in or are we still pulling that from the server? Ahh good we already have that. Finally, the menu isn't already showing is it? Ok it isn't, in which case I'm going to go ahead and show it. Let's write down that it's showing now, so I know in the future."
+
+Basically anytime we get the opportunity to run a bit more code in this linear system, we are doing so with the memory of a goldfish. Each time we have no idea what's going on and have to go check a bunch of things to build enough context to correctly generate the output we need. The system is "dumb" and doesn't know what information we might need, so it can't track it for us. We are left to our own devices to come up with a solution.
 
 ##STATE
 State is what makes our job as programmers VERY hard sometimes. To be honest, I didn't recognize this at all. That is to say, I knew when I had lots of different events and variables affecting my UI that it became really hard to manage; but I didn't recognize it in a philisophical, definable way. It's so engrained in me that I just thought it was part of the deal with programming, and that maybe I wasn't the best programmer for constantly struggling with it. 
@@ -82,13 +83,13 @@ The problem here is that every time you add another state, you are increasing th
 
 I looked at my code, like the interface above, and realized I was giving myself an unbelievably difficult task, requiring super-geek like abilities to pull off (to the tune of 4000+ different combinations I needed to handle if they were all relevant to the output). Obviously this is HIGHLY error prone.
 
-To make matters worse, this type of code will often produce UI only bugs that are incredibly hard, if not impossible, to identify in any automated way. After a few times through this wringer, we've probably all ended up writing centralized update methods like this that end up littered throughout our code: `updateViewCommentStatus` `updateChangeAnswerButtonText`. Any time we add another event (input), we make sure it's updating all the appropriate states and throw in the appropriate centralized update methods. Now our previously clean looking timeline is getting unmanagable:
+To make matters worse, this type of code will often produce UI only bugs that are incredibly hard, if not impossible, to identify in any automated way. After a few times through this wringer, we've probably all ended up writing centralized update methods that check a bunch of properties and update things accordingly. We end up with methods like this littered throughout our code: `updateViewCommentStatus` `updateChangeAnswerButtonText`. Any time we add another event (input), we make sure it's updating all the appropriate states (e.g. properties) and throw in the appropriate centralized update methods. Now our previously clean looking timeline is getting unmanagable:
 
 ![State change timeline][state-change]
 
 How can we possibly keep this all straight in our heads? We are expending an awful lot of brain power dealing with the consequences of this linear code execution thing, this modern version of the paper tape computer. Despite the power of computers today, we are still doing a heck of a lot of work on their behalf. We're programming to the way the computer hardware works; to the way that the run loop is creating a timeline and the cpu is processing bits in a single file. We are architecting our code around low level implementation details of computing. What if we were to harness the power of the computer, let it do more of the work, and allow ourselves to think and design our apps in a more sane manner?
 
-What if we abstract away the whole pesky notion of linear code execution and let the computer track state over time for us? Seems like something the computer would be good at.
+What if we abstract away the whole pesky notion of linear code execution, explain to the computer what combinations of inputs we are interested in for a particular output, and let the computer track state over time for us? Seems like something the computer would be good at; and we're certainly awful at it.
 
 ## Non-Linear Programming
 
